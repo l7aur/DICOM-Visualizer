@@ -51,6 +51,7 @@ void Application::createAction(std::string name, std::string iconPath, void (App
 
 void Application::open()
 {
+    deleteTableContents();
     if (init) {
         currentFilePath = QString(PATH_TO_FILE_TO_BE_OPEN_AT_STARTUP.c_str());
         init = false;
@@ -58,6 +59,7 @@ void Application::open()
     else
         currentFilePath = getNewFilePath();
     fetchData();
+    resizeTableCells();
 }
 
 void Application::edit()
@@ -69,6 +71,10 @@ void Application::edit()
 
 void Application::save()
 {
+    //todo list
+    // -> add store functionality
+    // -> create indentation of groups -> remove item number, make child tags have more indentation
+    //                                    if below the same parent tag
 }
 
 QString Application::getNewFilePath()
@@ -109,4 +115,15 @@ OFString Application::computeTagString(Tuple& rowData)
         s += "|>";
     s += rowData.getTag().first.toString();
     return s;
+}
+
+void Application::deleteTableContents()
+{
+    table->setRowCount(0);
+}
+
+void Application::resizeTableCells()
+{
+    table->resizeColumnsToContents();
+    table->resizeRowsToContents();
 }

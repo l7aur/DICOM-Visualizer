@@ -14,7 +14,6 @@ public:
 	void insertRow(QStringList strings);
 	void setEditabilityOfAllCells(bool isEditable);
 private:
-	void setColumnWidths();
 	void makeEditable(QTableWidgetItem* i);
 	void makeReadOnly(QTableWidgetItem* i);
 };

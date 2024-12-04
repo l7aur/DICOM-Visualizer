@@ -25,7 +25,6 @@ std::vector<Tuple> CustomFileReader::getAll()
 
 	DcmItem* item = nullptr;
 	DcmDataset* dataSet = fileFormat.getDataset();
-	DcmDataset* dataSet2 = fileFormat.getDataset();
 	DcmStack stack;
 
 	while (dataSet->nextObject(stack, OFTrue).good()) {
@@ -36,7 +35,7 @@ std::vector<Tuple> CustomFileReader::getAll()
 			obj->getVM(),
 			obj->getLength(),
 			retrieveDescription(obj->getTag()),
-			retrieveValue(dataSet2, obj->getTag())
+			retrieveValue(dataSet, obj->getTag())
 		));
 	}
 	return data;
@@ -51,7 +50,7 @@ OFString CustomFileReader::retrieveDescription(DcmTag tag)
 
 OFString CustomFileReader::retrieveValue(DcmDataset* dSet, DcmTag tag)
 {
-	OFString value(300, '\0');
+	OFString value(150, '\0');
 	dSet->findAndGetOFString(tag, value);
 	return value;
 }

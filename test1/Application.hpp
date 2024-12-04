@@ -39,6 +39,8 @@ private:
     QString getNewFilePath();
     void fetchData();
     OFString computeTagString(Tuple& rowData);
+    void deleteTableContents();
+    void resizeTableCells();
 
     Ui::test1Class ui;
     CustomTable* table;
