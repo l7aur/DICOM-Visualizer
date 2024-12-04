@@ -12,9 +12,11 @@ public:
 	CustomTable(unsigned int, unsigned int, const QStringList);
 	~CustomTable();
 	void insertRow(QStringList strings);
-	void allAssignEditability();
+	void setEditabilityOfAllCells(bool isEditable);
 private:
-	bool isEditable{ false };
+	void makeEditable(QTableWidgetItem* i);
+	void makeReadOnly(QTableWidgetItem* i);
+
 	QBrush editableBrush;
 	QBrush nonEditableBrush;
 };

@@ -17,15 +17,15 @@ Application::Application(QWidget* parent)
     addStateDisplay();
 }
 
+Application::~Application() 
+{
+}
+
 void Application::addStateDisplay()
 {
     editLabel = new QLabel(EDIT_DISABLE_MSG.c_str());
     statBar = statusBar();
     statBar->addPermanentWidget(editLabel, 1);
-}
-
-Application::~Application() 
-{
 }
 
 void Application::setWindowDimensions(unsigned int w, unsigned int h)
@@ -60,6 +60,23 @@ void Application::open()
     fetchData();
 }
 
+void Application::edit()
+{
+    toggleEdit = !toggleEdit;
+    editLabel->setText((toggleEdit) ? EDIT_ENABLE_MSG.c_str() : EDIT_DISABLE_MSG.c_str());
+    table->setEditabilityOfAllCells(toggleEdit);
+}
+
+void Application::save()
+{
+}
+
+QString Application::getNewFilePath()
+{
+    QString newPath = QFileDialog::getOpenFileName(this, tr("Open File"), PATH_TO_STUDIES_ROOT_FOLDER.c_str(), tr("*dcm"));
+    return (newPath.isEmpty()) ? currentFilePath : newPath;
+}
+
 void Application::fetchData()
 {
     int stat = fr->fopen(currentFilePath.toStdString());
@@ -72,21 +89,4 @@ void Application::fetchData()
     table->insertRow({ "test1", "test2", "test3", "test4", "test5", "test6" });
     table->insertRow({ "test1", "test2", "test3", "test4", "test5", "test6" });
     table->insertRow({"test1", "test2", "test3", "test4", "test5", "test6"});
-}
-
-QString Application::getNewFilePath()
-{
-    QString newPath = QFileDialog::getOpenFileName(this, tr("Open File"), PATH_TO_STUDIES_ROOT_FOLDER.c_str(), tr("*dcm"));
-    return (newPath.isEmpty()) ? currentFilePath : newPath;
-}
-
-void Application::save()
-{
-}
-
-void Application::edit()
-{
-    editLabel->setText((toggleEdit) ? EDIT_DISABLE_MSG.c_str() : EDIT_ENABLE_MSG.c_str());
-    table->allAssignEditability();
-    toggleEdit = !toggleEdit;
 }

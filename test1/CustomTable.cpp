@@ -21,27 +21,28 @@ void CustomTable::insertRow(QStringList strings)
     QTableWidget::insertRow(rowCount());
     for (int index = 0; index < columnCount(); ++index) {
         QTableWidgetItem* i = new QTableWidgetItem(strings.at(index));
-        i->setFlags(i->flags() & ~Qt::ItemIsEditable);
-        i->setBackground(Qt::red);
+        makeReadOnly(i);
         setItem(rowCount() - 1, index, i);
     }
-    std::cout << rowCount() << ' ' << columnCount() << '\n';
 }
 
-    void CustomTable::allAssignEditability()
+    void CustomTable::setEditabilityOfAllCells(bool isEditable)
     {
-        isEditable = !isEditable;
         for (int r = 0; r < rowCount(); ++r)
             for (int c = 0; c < columnCount(); ++c) {
                 QTableWidgetItem* i = item(r, c);
-                if (isEditable == false) {
-                    i->setFlags(i->flags() & ~Qt::ItemIsEditable);
-                    i->setBackground(Qt::red);
-                }
-                else {
-                    i->setFlags(i->flags() | Qt::ItemIsEditable);
-                    i->setBackground(Qt::green);
-                }
-
+                (isEditable) ? makeEditable(i) : makeReadOnly(i);
             }
+    }
+
+    void CustomTable::makeEditable(QTableWidgetItem* i)
+    {
+        i->setFlags(i->flags() | Qt::ItemIsEditable);
+        i->setBackground(Qt::green);
+    }
+
+    void CustomTable::makeReadOnly(QTableWidgetItem* i)
+    {
+        i->setFlags(i->flags() & ~Qt::ItemIsEditable);
+        i->setBackground(Qt::red);
     }

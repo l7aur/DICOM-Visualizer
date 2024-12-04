@@ -26,17 +26,18 @@ class Application : public QMainWindow
 
 public:
     Application(QWidget *parent = nullptr);
-    void addStateDisplay();
     ~Application();
+
+    void addStateDisplay();
 private:
     void setWindowDimensions(unsigned int, unsigned int);
     void addMenu();
     void createAction(std::string name, std::string iconPath, void (Application::*method)());
     void open();
-    void fetchData();
-    QString getNewFilePath();
-    void save();
     void edit();
+    void save();
+    QString getNewFilePath();
+    void fetchData();
 
     Ui::test1Class ui;
     CustomTable* table;
