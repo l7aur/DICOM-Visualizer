@@ -3,9 +3,15 @@
 CustomTable::CustomTable(unsigned int r, unsigned int c, const QStringList labels)
     : QTableWidget(r, c)
 {
+    this->setColumnWidths();
     this->setColumnCount(c);
     this->setRowCount(r);
     this->setHorizontalHeaderLabels(labels);
+}
+
+void CustomTable::setColumnWidths()
+{
+    this->setColumnWidth(0, 100);
 }
 
 CustomTable::~CustomTable()

@@ -25,16 +25,18 @@ std::vector<Tuple> CustomFileReader::getAll()
 
 	DcmItem* item = nullptr;
 	DcmDataset* dataSet = fileFormat.getDataset();
+	DcmDataset* dataSet2 = fileFormat.getDataset();
 	DcmStack stack;
+
 	while (dataSet->nextObject(stack, OFTrue).good()) {
 		DcmObject* obj = stack.top();
 		data.push_back(Tuple(
 			{ obj->getTag(), (stack.card() / 2) - 1 },
 			DcmVR(obj->getVR()).getVRName(),
 			obj->getVM(),
-			obj->getLengthField(),
+			obj->getLength(),
 			retrieveDescription(obj->getTag()),
-			retrieveValue(dataSet, obj->getTag())
+			retrieveValue(dataSet2, obj->getTag())
 		));
 	}
 	return data;
@@ -44,14 +46,12 @@ OFString CustomFileReader::retrieveDescription(DcmTag tag)
 {
 	OFString description = "";
 	description = tag.getTagName();
-	return (description == "") ? "NO DESCRIPTION AVAILABLE" : description;
+	return description;
 }
 
 OFString CustomFileReader::retrieveValue(DcmDataset* dSet, DcmTag tag)
 {
-	OFString value = "";
+	OFString value(300, '\0');
 	dSet->findAndGetOFString(tag, value);
-	return (value == "") ? "NO VALUE AVAILABLE" : value;
+	return value;
 }
-
-// getLength sau getLengthField?
