@@ -92,8 +92,8 @@ void Application::fetchData()
         
         rowToBeInserted.push_back(computeTagString(rowData).c_str());
         rowToBeInserted.push_back(rowData.getVr().getVRName());
-        rowToBeInserted.push_back(rowData.getVm().c_str());
-        rowToBeInserted.push_back(rowData.getLength().c_str());
+        rowToBeInserted.push_back(std::to_string(rowData.getVm()).c_str());
+        rowToBeInserted.push_back(std::to_string(rowData.getLength()).c_str());
         rowToBeInserted.push_back(rowData.getDescription().c_str());
         rowToBeInserted.push_back(rowData.getValue().c_str());
 

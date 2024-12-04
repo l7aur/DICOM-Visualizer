@@ -27,10 +27,31 @@ std::vector<Tuple> CustomFileReader::getAll()
 	DcmDataset* dataSet = fileFormat.getDataset();
 	DcmStack stack;
 	while (dataSet->nextObject(stack, OFTrue).good()) {
+		DcmObject* obj = stack.top();
 		data.push_back(Tuple(
-			{ stack.top()->getTag(), OFString((stack.card() / 2) - 1, '>').size() },
-			DcmVR(stack.top()->getVR()).getVRName()
+			{ obj->getTag(), (stack.card() / 2) - 1 },
+			DcmVR(obj->getVR()).getVRName(),
+			obj->getVM(),
+			obj->getLengthField(),
+			retrieveDescription(obj->getTag()),
+			retrieveValue(dataSet, obj->getTag())
 		));
 	}
 	return data;
 }
+
+OFString CustomFileReader::retrieveDescription(DcmTag tag)
+{
+	OFString description = "";
+	description = tag.getTagName();
+	return (description == "") ? "NO DESCRIPTION AVAILABLE" : description;
+}
+
+OFString CustomFileReader::retrieveValue(DcmDataset* dSet, DcmTag tag)
+{
+	OFString value = "";
+	dSet->findAndGetOFString(tag, value);
+	return (value == "") ? "NO VALUE AVAILABLE" : value;
+}
+
+// getLength sau getLengthField?

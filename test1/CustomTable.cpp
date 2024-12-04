@@ -43,5 +43,5 @@ void CustomTable::makeEditable(QTableWidgetItem* i)
 void CustomTable::makeReadOnly(QTableWidgetItem* i)
 {
     i->setFlags(i->flags() & ~Qt::ItemIsEditable);
-    //i->setBackground(Qt::red);
+    i->setBackground(Qt::transparent);
 }

@@ -17,6 +17,9 @@ public:
 	void printFile();
 	std::vector<Tuple> getAll();
 private:
+	OFString retrieveDescription(DcmTag tag);
+	OFString retrieveValue(DcmDataset* dSet, DcmTag tag);
+
 	DcmFileFormat fileFormat;
 	OFCondition status;
 };
