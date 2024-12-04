@@ -1,0 +1,17 @@
+#pragma once
+
+#include "dcmtk/config/osconfig.h" 
+#include "dcmtk/dcmdata/dctk.h" 
+#include "dcmtk/dcmdata/dcistrmf.h"
+#include <string>
+
+class CustomFileReader {
+public:
+	CustomFileReader();
+	~CustomFileReader();
+	int fopen(std::string path);
+	void printFile();
+private:
+	DcmFileFormat fileFormat;
+	OFCondition status;
+};
