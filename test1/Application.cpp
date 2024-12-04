@@ -85,8 +85,28 @@ void Application::fetchData()
         return;
     }
     // fr->printFile(); /*debug*/
-    table->insertRow({ "test1", "test2", "test3", "test4", "test5", "test6" });
-    table->insertRow({ "test1", "test2", "test3", "test4", "test5", "test6" });
-    table->insertRow({ "test1", "test2", "test3", "test4", "test5", "test6" });
-    table->insertRow({"test1", "test2", "test3", "test4", "test5", "test6"});
+    QStringList rowToBeInserted{};
+
+    std::vector<Tuple> data = fr->getAll();
+    for (auto& rowData : data) {
+        
+        rowToBeInserted.push_back(computeTagString(rowData).c_str());
+        rowToBeInserted.push_back(rowData.getVr().getVRName());
+        rowToBeInserted.push_back(rowData.getVm().c_str());
+        rowToBeInserted.push_back(rowData.getLength().c_str());
+        rowToBeInserted.push_back(rowData.getDescription().c_str());
+        rowToBeInserted.push_back(rowData.getValue().c_str());
+
+        table->insertRow(rowToBeInserted);
+        rowToBeInserted.clear();
+    }
+}
+
+OFString Application::computeTagString(Tuple& rowData)
+{
+    OFString s = "";
+    for (int d = 0; d < rowData.getTag().second; d++)
+        s += "|>";
+    s += rowData.getTag().first.toString();
+    return s;
 }

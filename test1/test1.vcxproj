@@ -123,6 +123,7 @@
   <ItemGroup>
     <ClInclude Include="CustomFileReader.hpp" />
     <ClInclude Include="CustomTable.hpp" />
+    <ClInclude Include="Tuple.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CustomTableStyleSheet.qss" />

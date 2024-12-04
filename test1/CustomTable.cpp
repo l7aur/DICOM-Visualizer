@@ -26,23 +26,22 @@ void CustomTable::insertRow(QStringList strings)
     }
 }
 
-    void CustomTable::setEditabilityOfAllCells(bool isEditable)
-    {
-        for (int r = 0; r < rowCount(); ++r)
-            for (int c = 0; c < columnCount(); ++c) {
-                QTableWidgetItem* i = item(r, c);
-                (isEditable) ? makeEditable(i) : makeReadOnly(i);
-            }
+void CustomTable::setEditabilityOfAllCells(bool isEditable)
+{
+    for (int r = 0; r < rowCount(); ++r) {
+        QTableWidgetItem* i = item(r, columnCount() - 1);
+        (isEditable) ? makeEditable(i) : makeReadOnly(i);
     }
+}
 
-    void CustomTable::makeEditable(QTableWidgetItem* i)
-    {
-        i->setFlags(i->flags() | Qt::ItemIsEditable);
-        i->setBackground(Qt::green);
-    }
+void CustomTable::makeEditable(QTableWidgetItem* i)
+{
+    i->setFlags(i->flags() | Qt::ItemIsEditable);
+    i->setBackground(Qt::green);
+}
 
-    void CustomTable::makeReadOnly(QTableWidgetItem* i)
-    {
-        i->setFlags(i->flags() & ~Qt::ItemIsEditable);
-        i->setBackground(Qt::red);
-    }
+void CustomTable::makeReadOnly(QTableWidgetItem* i)
+{
+    i->setFlags(i->flags() & ~Qt::ItemIsEditable);
+    //i->setBackground(Qt::red);
+}
