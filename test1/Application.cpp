@@ -1,9 +1,4 @@
 #include "Application.hpp"
-#include <QDesktopServices>
-#include <QUrl>
-#include <QFileDialog>
-#include <iostream>
-#include "Application.hpp"
 
 Application::Application(QWidget* parent) 
     : QMainWindow(parent)

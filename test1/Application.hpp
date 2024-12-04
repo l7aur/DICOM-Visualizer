@@ -9,6 +9,10 @@
 #include <string>
 #include <QIcon>
 #include <QLabel>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QFileDialog>
+#include <iostream>
 
 const unsigned int WINDOW_WIDTH = 1080;
 const unsigned int WINDOW_HEIGHT = 720;
