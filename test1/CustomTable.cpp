@@ -41,15 +41,6 @@ std::vector<std::pair<QString, QString>> CustomTable::getContentOfEditableCells(
 
     std::vector<std::pair<QString, QString>> v;
 
-    /*
-    * get the pairs tag values from the table
-    * loop through them
-    *   if different
-    *       update value in file
-    *   else
-    *      continue
-    */
-
     for (int i = 0; i < rowCount(); ++i) {
         QString tagString = item(i, tagColumn)->text();
         QString valueString = item(i, valueColumn)->text();

@@ -31,6 +31,7 @@ private:
     void open();
     void edit();
     void save();
+    const OFString removeMarkers(std::string s);
     QString getNewFilePath();
     void fetchData();
     OFString computeTagString(Tuple& rowData);

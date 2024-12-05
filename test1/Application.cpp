@@ -10,6 +10,7 @@ namespace {
     const std::string PATH_TO_STUDIES_ROOT_FOLDER{ "C:\\PXD\\Studii\\zzTest1^zzTest2 2024-12-02.12_47_55\\ST0" };
     const std::string EDIT_ENABLE_MSG{ "EDITING HAS BEEN ENABLED" };
     const std::string EDIT_DISABLE_MSG{ "EDITING IS DISABLED" };
+    const char DEPTH_MARKER = '\t';
 }
 
 Application::Application(QWidget* parent) 
@@ -76,24 +77,44 @@ void Application::edit()
     table->setEditabilityOfAllCells(toggleEdit);
 }
 
+
+/*
+* get the pairs tag values from the table
+* loop through them
+*   if different
+*       update value in file
+*   else
+*      continue
+*/
 void Application::save()
 {
     if (!toggleEdit && table->rowCount() > 0)
         return;
     std::vector<std::pair<QString, QString>> tableData = table->getContentOfEditableCells();
     //tableData is an in-work-copy of data, but stores only the visible data
-    int index1{0}, index2{0};
+    int index1{ 0 }, index2{ 0 };
     for (index1, index2; index1 < data.size() && index2 < tableData.size(); ++index1, ++index2)
     {
-        if (data[index1].getTag().first == DCM_Item)
+        if (data[index1].getTag().first == DCM_Item) {
+            --index2;
             continue;
-        OFString tableValueOFString = (OFString)(tableData[index2].second.toStdString().c_str());
-        if (data[index1].value == tableValueOFString)
+        }
+        OFString tableValueOFString = removeMarkers(tableData[index2].second.toStdString());
+        if (!(data[index1].value == tableValueOFString))
             fr->writeValueAtTag(data[index1].getTag().first, tableValueOFString);
     }
-    //fr->write(table->getContentOfEditableCells(), currentFilePath.toStdString());
-    //fr->write(table->getContentOfEditableCells(), (QString("C:\\Users\\user\\Desktop\\edited.dcm")).toStdString());
     edit();
+    //fr->saveOnDisk("C:\\Users\\user\\Desktop\\edited.dcm"); /*debug*/
+    //fr->saveOnDisk(currentFilePath);
+}
+
+const OFString Application::removeMarkers(std::string s)
+{
+    if (s.size() <= 0)
+        return "";
+    if (s.at(0) == DEPTH_MARKER)
+        s.erase(0, 1);
+    return (OFString)(s.c_str());
 }
 
 QString Application::getNewFilePath()
@@ -133,7 +154,7 @@ OFString Application::computeTagString(Tuple& rowData)
 {
     OFString s = "";
     for (int d = 0; d < rowData.getTag().second; d++)
-        s += "\t";
+        s += DEPTH_MARKER;
     s += rowData.getTag().first.toString();
     return s;
 }

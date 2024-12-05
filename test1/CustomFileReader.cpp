@@ -45,16 +45,17 @@ std::vector<Tuple> CustomFileReaderWriter::getAll()
 
 void CustomFileReaderWriter::writeValueAtTag(DcmTag tag, OFString newValue)
 {
-
-}
-
-void CustomFileReaderWriter::write(std::vector<Tuple> values, std::string path)
-{
-	for (auto& i : values) {
-		DcmElement* element = new DcmLongString(i.tag.first);
-		element->putString(i.value.c_str(), i.length);
+	DcmElement* element = nullptr;
+	if (dataSet->findAndGetElement(tag, element).good()) //implies element is not nullptr?
+	{
+		element->putString(newValue.c_str());
+		std::cout << "changed value into " << newValue << '\n';
 		dataSet->insert(element);
 	}
+}
+
+void CustomFileReaderWriter::saveOnDisk(std::string path)
+{
 	dataSet->saveFile(path.c_str());
 }
 
