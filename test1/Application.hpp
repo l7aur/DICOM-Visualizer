@@ -3,7 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_test1.h"
 #include "CustomTable.hpp"
-#include "CustomFileReader.hpp"
+#include "CustomFileReaderWriter.hpp"
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <string>

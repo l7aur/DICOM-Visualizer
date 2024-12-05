@@ -27,14 +27,6 @@ struct Tuple
 	{
 	};
 
-	Tuple(std::pair<DcmTag, int> tagg, OFString valuee, Uint32 lengthh)
-		: tag(tagg), value(valuee), length(lengthh)
-	{
-		vr = DcmVR();
-		vm = 0;
-		description = "none";
-	};
-
 	std::pair<DcmTag, int> getTag() const { return tag; };
 	DcmVR getVr() const { return vr; };
 	unsigned long getVm() const { return vm; };

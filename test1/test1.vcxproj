@@ -115,13 +115,13 @@
     <QtRcc Include="test1.qrc" />
     <QtUic Include="test1.ui" />
     <QtMoc Include="Application.hpp" />
-    <ClCompile Include="CustomFileReader.cpp" />
+    <ClCompile Include="CustomFileReaderWriter.cpp" />
     <ClCompile Include="CustomTable.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CustomFileReader.hpp" />
+    <ClInclude Include="CustomFileReaderWriter.hpp" />
     <ClInclude Include="CustomTable.hpp" />
     <ClInclude Include="Tuple.hpp" />
   </ItemGroup>

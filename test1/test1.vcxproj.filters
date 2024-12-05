@@ -43,7 +43,7 @@
     <ClCompile Include="CustomTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CustomFileReader.cpp">
+    <ClCompile Include="CustomFileReaderWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -51,7 +51,7 @@
     <ClInclude Include="CustomTable.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CustomFileReader.hpp">
+    <ClInclude Include="CustomFileReaderWriter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tuple.hpp">

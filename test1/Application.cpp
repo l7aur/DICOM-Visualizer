@@ -88,10 +88,16 @@ void Application::edit()
 */
 void Application::save()
 {
+    /*  todo
+    * changing values inside nested structures reaches the fileReaderWriter
+    * but updates do not go through
+    * check how to update sequences and modify the logic
+    *   maybe add a bool that is set when the sequence begin tag is encountered
+    */
     if (!toggleEdit && table->rowCount() > 0)
         return;
-    std::vector<std::pair<QString, QString>> tableData = table->getContentOfEditableCells();
     //tableData is an in-work-copy of data, but stores only the visible data
+    std::vector<std::pair<QString, QString>> tableData = table->getContentOfEditableCells();
     int index1{ 0 }, index2{ 0 };
     for (index1, index2; index1 < data.size() && index2 < tableData.size(); ++index1, ++index2)
     {
@@ -100,11 +106,14 @@ void Application::save()
             continue;
         }
         OFString tableValueOFString = removeMarkers(tableData[index2].second.toStdString());
-        if (!(data[index1].value == tableValueOFString))
+        std::cout << data[index1].getTag().first << ' ' << tableData[index2].first.toStdString() << '\n'; /*debug*/
+        if (!(data[index1].value == tableValueOFString)) {
             fr->writeValueAtTag(data[index1].getTag().first, tableValueOFString);
+            std::cout << "\tdifferent\n"; /*debug*/
+        }
     }
     edit();
-    //fr->saveOnDisk("C:\\Users\\user\\Desktop\\edited.dcm"); /*debug*/
+    fr->saveOnDisk("C:\\Users\\user\\Desktop\\edited.dcm"); /*debug*/
     //fr->saveOnDisk(currentFilePath);
 }
 

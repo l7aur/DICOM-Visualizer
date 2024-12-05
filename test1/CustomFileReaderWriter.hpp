@@ -24,5 +24,5 @@ private:
 
 	DcmFileFormat fileFormat;
 	OFCondition status;
-	DcmDataset* dataSet;
+	DcmDataset* dataSet{ nullptr };
 };
