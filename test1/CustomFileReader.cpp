@@ -43,6 +43,11 @@ std::vector<Tuple> CustomFileReaderWriter::getAll()
 	return data;
 }
 
+void CustomFileReaderWriter::writeValueAtTag(DcmTag tag, OFString newValue)
+{
+
+}
+
 void CustomFileReaderWriter::write(std::vector<Tuple> values, std::string path)
 {
 	for (auto& i : values) {

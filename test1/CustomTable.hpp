@@ -6,7 +6,6 @@
 #include <QBrush>
 #include <iostream>
 #include <vector>
-#include "Tuple.hpp"
 
 class CustomTable : public QTableWidget
 {
@@ -15,7 +14,7 @@ public:
 	~CustomTable();
 	void insertRow(QStringList strings);
 	void setEditabilityOfAllCells(bool isEditable);
-	std::vector<Tuple> getContentOfEditableCells() const;
+	std::vector<std::pair<QString, QString>> getContentOfEditableCells() const;
 private:
 	void makeEditable(QTableWidgetItem* i);
 	void makeReadOnly(QTableWidgetItem* i);

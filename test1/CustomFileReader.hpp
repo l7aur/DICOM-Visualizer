@@ -16,6 +16,8 @@ public:
 	int fopen(std::string path);
 	void printFile();
 	std::vector<Tuple> getAll();
+	void writeValueAtTag(DcmTag tag, OFString newValue);
+
 	void write(std::vector<Tuple> values, std::string path);
 private:
 	OFString retrieveDescription(DcmTag tag);
