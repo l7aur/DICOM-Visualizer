@@ -48,12 +48,13 @@ private:
 
     Ui::test1Class ui;
     CustomTable* table;
-    CustomFileReader* reader;
+    CustomFileReaderWriter* reader;
     QMenu* fileMenu;
     QStatusBar* statBar;
     QString currentFilePath;
     QLabel* editLabel;
-    CustomFileReader* fr;
+    CustomFileReaderWriter* fr;
+    std::vector<Tuple> data;
     bool init{ true };
     bool toggleEdit{ false };
 };

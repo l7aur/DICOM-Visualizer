@@ -5,7 +5,7 @@ Application::Application(QWidget* parent)
 {
     setWindowDimensions(WINDOW_WIDTH, WINDOW_HEIGHT);
     table = new CustomTable(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS, COLUMN_HEADER_NAMES);
-    fr = new CustomFileReader();
+    fr = new CustomFileReaderWriter();
     setCentralWidget(table);
     open();
     addMenu();
@@ -66,10 +66,10 @@ void Application::edit()
 
 void Application::save()
 {
-    //todo list
-    // -> add store functionality
-    // -> create indentation of groups -> remove item number, make child tags have more indentation
-    //                                    if below the same parent tag
+    if (!toggleEdit && table->rowCount() > 0)
+        return;
+    //fr->write(table->getContentOfEditableCells(), currentFilePath.toStdString());
+    fr->write(table->getContentOfEditableCells(), (QString("C:\\Users\\user\\Desktop\\edited.dcm")).toStdString());
 }
 
 QString Application::getNewFilePath()
@@ -88,9 +88,11 @@ void Application::fetchData()
     // fr->printFile(); /*debug*/
     QStringList rowToBeInserted{};
 
-    std::vector<Tuple> data = fr->getAll();
+    data = fr->getAll();
     for (auto& rowData : data) {
-        
+        if (rowData.getTag().first == DCM_Item) // may need to add DCM_SequenceDelimitationItem, DCM_ItemDelimitationItem 
+            continue;
+
         rowToBeInserted.push_back(computeTagString(rowData).c_str());
         rowToBeInserted.push_back(rowData.getVr().getVRName());
         rowToBeInserted.push_back(std::to_string(rowData.getVm()).c_str());
@@ -107,7 +109,7 @@ OFString Application::computeTagString(Tuple& rowData)
 {
     OFString s = "";
     for (int d = 0; d < rowData.getTag().second; d++)
-        s += "|>";
+        s += "\t";
     s += rowData.getTag().first.toString();
     return s;
 }

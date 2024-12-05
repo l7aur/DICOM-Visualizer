@@ -1,30 +1,32 @@
 #include "CustomFileReader.hpp"
 
-CustomFileReader::CustomFileReader()
+CustomFileReaderWriter::CustomFileReaderWriter()
 {
 }
 
-CustomFileReader::~CustomFileReader()
+CustomFileReaderWriter::~CustomFileReaderWriter()
 {
 }
 
-int CustomFileReader::fopen(std::string path)
+int CustomFileReaderWriter::fopen(std::string path)
 {
 	status = fileFormat.loadFile(path.c_str());
-	return (status.good()) ? 0 : -1;
+	if (!status.good())
+		return -1;
+	dataSet = fileFormat.getDataset();
+	return 0;
 }
 
-void CustomFileReader::printFile()
+void CustomFileReaderWriter::printFile()
 {
 	fileFormat.print(COUT);
 }
 
-std::vector<Tuple> CustomFileReader::getAll()
+std::vector<Tuple> CustomFileReaderWriter::getAll()
 {
 	std::vector<Tuple> data;
 
 	DcmItem* item = nullptr;
-	DcmDataset* dataSet = fileFormat.getDataset();
 	DcmStack stack;
 
 	while (dataSet->nextObject(stack, OFTrue).good()) {
@@ -35,22 +37,32 @@ std::vector<Tuple> CustomFileReader::getAll()
 			obj->getVM(),
 			obj->getLength(),
 			retrieveDescription(obj->getTag()),
-			retrieveValue(dataSet, obj->getTag())
+			retrieveValue(obj->getTag())
 		));
 	}
 	return data;
 }
 
-OFString CustomFileReader::retrieveDescription(DcmTag tag)
+void CustomFileReaderWriter::write(std::vector<Tuple> values, std::string path)
+{
+	for (auto& i : values) {
+		DcmElement* element = new DcmLongString(i.tag.first);
+		element->putString(i.value.c_str(), i.length);
+		dataSet->insert(element);
+	}
+	dataSet->saveFile(path.c_str());
+}
+
+OFString CustomFileReaderWriter::retrieveDescription(DcmTag tag)
 {
 	OFString description = "";
 	description = tag.getTagName();
 	return description;
 }
 
-OFString CustomFileReader::retrieveValue(DcmDataset* dSet, DcmTag tag)
+OFString CustomFileReaderWriter::retrieveValue(DcmTag tag)
 {
 	OFString value(150, '\0');
-	dSet->findAndGetOFString(tag, value);
+	dataSet->findAndGetOFString(tag, value);
 	return value;
 }

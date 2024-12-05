@@ -9,17 +9,19 @@
 #include <iostream>
 #include <utility>
 
-class CustomFileReader {
+class CustomFileReaderWriter {
 public:
-	CustomFileReader();
-	~CustomFileReader();
+	CustomFileReaderWriter();
+	~CustomFileReaderWriter();
 	int fopen(std::string path);
 	void printFile();
 	std::vector<Tuple> getAll();
+	void write(std::vector<Tuple> values, std::string path);
 private:
 	OFString retrieveDescription(DcmTag tag);
-	OFString retrieveValue(DcmDataset* dSet, DcmTag tag);
+	OFString retrieveValue(DcmTag tag);
 
 	DcmFileFormat fileFormat;
 	OFCondition status;
+	DcmDataset* dataSet;
 };

@@ -34,6 +34,28 @@ void CustomTable::setEditabilityOfAllCells(bool isEditable)
     }
 }
 
+std::vector<Tuple> CustomTable::getContentOfEditableCells() const
+{
+    std::vector<Tuple> v;
+
+    const int tagColumn = 0;
+    const int valueColumn = 5;
+    const int descriptionColumn = 4;
+    /*for (int i = 0; i < rowCount(); ++i) {
+        QString tagQString = item(i, tagColumn)->text();
+        QString valueQString = item(i, valueColumn)->text();
+        QString descriptionQString = item(i, descriptionColumn)->text();
+        
+        DcmTag tag;
+        OFCondition status = DcmTag::findTagFromName(descriptionQString.toStdString().c_str(), tag);
+        DcmElement* element = ;
+        //move this to table simplify logic layered architecture!!
+        if(status.good())
+            v.push_back(Tuple({ tag, -1 }, valueQString.toStdString().c_str(), tag.g());
+    }*/
+    return v;
+}
+
 void CustomTable::makeEditable(QTableWidgetItem* i)
 {
     i->setFlags(i->flags() | Qt::ItemIsEditable);
