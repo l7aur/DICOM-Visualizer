@@ -5,32 +5,22 @@
 
 struct Tuple
 {
-	std::pair<DcmTag, int> tag;
-	DcmVR vr;
-	unsigned long vm;
-	Uint32 length;
-	OFString description;
-	OFString value;
-
-	Tuple()
-	{
-		tag = { DcmTag(), -1 };
-		vr = DcmVR();
-		vm = 0;
-		length = 0;
-		description = "none";
-		value = "none";
-	}
+	const std::pair<DcmTag, int> tag;
+	const DcmVR vr;
+	const unsigned long vm;
+	const Uint32 length;
+	const OFString description;
+	const OFString value;
 
 	Tuple(std::pair<DcmTag, int> tagg, DcmVR vrr, unsigned long vmm, Uint32 lengthh, OFString descriptionn, OFString valuee)
 		: tag(tagg), vr(vrr), vm(vmm), length(lengthh), description(descriptionn), value(valuee)
 	{
 	};
 
-	std::pair<DcmTag, int> getTag() const { return tag; };
-	DcmVR getVr() const { return vr; };
-	unsigned long getVm() const { return vm; };
-	Uint32 getLength() const { return length; };
-	OFString getDescription() const { return description; };
-	OFString getValue() const { return value; };
+	const std::pair<DcmTag, int> getTag() const { return tag; };
+	const DcmVR getVr() const { return vr; };
+	const unsigned long getVm() const { return vm; };
+	const Uint32 getLength() const { return length; };
+	const OFString getDescription() const { return description; };
+	const OFString getValue() const { return value; };
 };
