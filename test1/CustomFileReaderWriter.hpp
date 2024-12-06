@@ -17,10 +17,12 @@ public:
 	void printFile();
 	std::vector<Tuple> getAll();
 	void writeValueAtTag(DcmTag tag, OFString newValue);
+	void writeValueAtTag(DcmTag sequenceTag, DcmTag targetTag, OFString newValue);
 	void saveOnDisk(std::string path);
 private:
 	OFString retrieveDescription(DcmTag tag);
 	OFString retrieveValue(DcmTag tag);
+	OFString retrieveValue(DcmTag sequenceTag, const unsigned int itemIndex, DcmTag targetTag);
 
 	DcmFileFormat fileFormat;
 	OFCondition status;

@@ -1,5 +1,15 @@
 #include "CustomTable.hpp"
 
+namespace {
+    std::vector<const char*> NON_EDITABLE_VR{"na", "SQ"};
+    bool isThisRowEditable(QString s) {
+        for (auto& i : NON_EDITABLE_VR)
+            if (s == i)
+                return false;
+        return true;
+    }
+}
+
 CustomTable::CustomTable(unsigned int r, unsigned int c, const QStringList labels)
     : QTableWidget(r, c)
 {
@@ -28,10 +38,11 @@ void CustomTable::insertRow(QStringList strings)
 
 void CustomTable::setEditabilityOfAllCells(bool isEditable)
 {
-    for (int r = 0; r < rowCount(); ++r) {
-        QTableWidgetItem* i = item(r, columnCount() - 1);
-        (isEditable) ? makeEditable(i) : makeReadOnly(i);
-    }
+    for (int r = 0; r < rowCount(); ++r) 
+        if(isThisRowEditable(item(r, 1)->text())) {
+            QTableWidgetItem* i = item(r, columnCount() - 1);
+            (isEditable) ? makeEditable(i) : makeReadOnly(i);
+        }
 }
 
 std::vector<std::pair<QString, QString>> CustomTable::getContentOfEditableCells() const

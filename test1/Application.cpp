@@ -77,44 +77,77 @@ void Application::edit()
     table->setEditabilityOfAllCells(toggleEdit);
 }
 
+/**
+ * todos.
+ *  > clean code
+ *  > testing
+ *  > force insert sequence end to make overall logic simpler
+ *  > update the save() method logic - remove the \t check
+ *  > maybe add 'Save as ...' functionality
+ */
 
-/*
-* get the pairs tag values from the table
-* loop through them
-*   if different
-*       update value in file
-*   else
-*      continue
-*/
 void Application::save()
 {
-    /*  todo
-    * changing values inside nested structures reaches the fileReaderWriter
-    * but updates do not go through
-    * check how to update sequences and modify the logic
-    *   maybe add a bool that is set when the sequence begin tag is encountered
-    */
     if (!toggleEdit && table->rowCount() > 0)
         return;
-    //tableData is an in-work-copy of data, but stores only the visible data
     std::vector<std::pair<QString, QString>> tableData = table->getContentOfEditableCells();
-    int index1{ 0 }, index2{ 0 };
-    for (index1, index2; index1 < data.size() && index2 < tableData.size(); ++index1, ++index2)
+    std::stack<DcmTag> sequenceTag;
+    for (int index = 0; index < data.size(); ++index)
     {
-        if (data[index1].getTag().first == DCM_Item) {
-            --index2;
+        if (!strcmp(data[index].getVr().getVRName(), "SQ")) {
+            sequenceTag.push(data[index].getTag().first);
             continue;
         }
-        OFString tableValueOFString = removeMarkers(tableData[index2].second.toStdString());
-        std::cout << data[index1].getTag().first << ' ' << tableData[index2].first.toStdString() << '\n'; /*debug*/
-        if (!(data[index1].value == tableValueOFString)) {
-            fr->writeValueAtTag(data[index1].getTag().first, tableValueOFString);
-            std::cout << "\tdifferent\n"; /*debug*/
+        if (!strcmp(data[index].getVr().getVRName(), "na"))
+            continue;
+        if (tableData[index].first.at(0) != '\t' && !sequenceTag.empty())
+            sequenceTag.pop();
+        OFString tableValueOfString = tableData[index].second.toStdString().c_str();
+        if (!(data[index].value == tableValueOfString)) {
+            if (sequenceTag.empty())
+                fr->writeValueAtTag(data[index].getTag().first, tableValueOfString);
+            else
+                fr->writeValueAtTag(sequenceTag.top(), data[index].getTag().first, tableValueOfString); /*test*/
         }
     }
     edit();
-    fr->saveOnDisk("C:\\Users\\user\\Desktop\\edited.dcm"); /*debug*/
+    fr->saveOnDisk("C:\\Users\\user\\Desktop\\edited.dcm"); /*path for debug*/
     //fr->saveOnDisk(currentFilePath);
+}
+
+void Application::fetchData()
+{
+    int stat = fr->fopen(currentFilePath.toStdString());
+    if (stat < 0) {
+        COUT << "File was not opened!\n";
+        return;
+    }
+    // fr->printFile(); /*debug*/
+    QStringList rowToBeInserted{};
+
+    data = fr->getAll();
+    for (auto& i : data) {
+        //if (strcmp(i.getVr().getVRName(), "UN")) { //remove unknown tags
+            rowToBeInserted.push_back(computeTagString(i).c_str());
+            rowToBeInserted.push_back(i.getVr().getVRName());
+            rowToBeInserted.push_back(std::to_string(i.getVm()).c_str());
+            rowToBeInserted.push_back(std::to_string(i.getLength()).c_str());
+            rowToBeInserted.push_back(i.getDescription().c_str());
+            rowToBeInserted.push_back(i.getValue().c_str());
+
+            table->insertRow(rowToBeInserted);
+            rowToBeInserted.clear();
+        //}
+    }
+}
+
+OFString Application::computeTagString(Tuple& rowData)
+{
+    OFString s = "";
+    for (int d = 0; d < rowData.getTag().second; d++)
+        s += DEPTH_MARKER;
+    s += rowData.getTag().first.toString();
+    return s;
 }
 
 const OFString Application::removeMarkers(std::string s)
@@ -130,42 +163,6 @@ QString Application::getNewFilePath()
 {
     QString newPath = QFileDialog::getOpenFileName(this, tr("Open File"), PATH_TO_STUDIES_ROOT_FOLDER.c_str(), tr("*dcm"));
     return (newPath.isEmpty()) ? currentFilePath : newPath;
-}
-
-void Application::fetchData()
-{
-    int stat = fr->fopen(currentFilePath.toStdString());
-    if (stat < 0) {
-        COUT << "File was not opened!\n";
-        return;
-    }
-    // fr->printFile(); /*debug*/
-    QStringList rowToBeInserted{};
-
-    data = fr->getAll();
-    for (auto& i : data) {
-        if (i.getTag().first == DCM_Item) // may need to add DCM_SequenceDelimitationItem, DCM_ItemDelimitationItem 
-            continue;
-
-        rowToBeInserted.push_back(computeTagString(i).c_str());
-        rowToBeInserted.push_back(i.getVr().getVRName());
-        rowToBeInserted.push_back(std::to_string(i.getVm()).c_str());
-        rowToBeInserted.push_back(std::to_string(i.getLength()).c_str());
-        rowToBeInserted.push_back(i.getDescription().c_str());
-        rowToBeInserted.push_back(i.getValue().c_str());
-
-        table->insertRow(rowToBeInserted);
-        rowToBeInserted.clear();
-    }
-}
-
-OFString Application::computeTagString(Tuple& rowData)
-{
-    OFString s = "";
-    for (int d = 0; d < rowData.getTag().second; d++)
-        s += DEPTH_MARKER;
-    s += rowData.getTag().first.toString();
-    return s;
 }
 
 void Application::deleteTableContents()
