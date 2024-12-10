@@ -27,21 +27,21 @@ int CustomFileReaderWriter::fopen(std::string path)
 }
 
 /**
- * Delimitation of the last Item of a Sequence of Items, encapsulated in a Data Element of Value Representation SQ, 
+ * Delimitation of the last Item of a Sequence of Items, encapsulated in a Data Element of Value Representation SQ,
  * shall be in one of the two following ways:
- *	> Explicit Length: The number of bytes (even) contained in the Data Element Value (following but not including the Value (Sequence) 
- * Length Field) is encoded as a 32-bit unsigned integer value (see Section 7.1). This length shall include the total length resulting 
- * from the sequence of zero or more items conveyed by this Data Element. This Data Element Length shall be equal to 00000000H if the 
+ *	> Explicit Length: The number of bytes (even) contained in the Data Element Value (following but not including the Value (Sequence)
+ * Length Field) is encoded as a 32-bit unsigned integer value (see Section 7.1). This length shall include the total length resulting
+ * from the sequence of zero or more items conveyed by this Data Element. This Data Element Length shall be equal to 00000000H if the
  * sequence of Items contains zero Items.
- *	> Undefined Length: The Value (Sequence) Length Field shall contain a Value FFFFFFFFH to indicate a Sequence of Undefined Length. 
- * It shall be used in conjunction with a Sequence Delimitation Item. A Sequence Delimitation Item shall be included after the last 
- * Item in the sequence. Its Item Tag shall be (FFFE,E0DD) with a Value (Item) Length Field of 00000000H. No Value shall be present. 
+ *	> Undefined Length: The Value (Sequence) Length Field shall contain a Value FFFFFFFFH to indicate a Sequence of Undefined Length.
+ * It shall be used in conjunction with a Sequence Delimitation Item. A Sequence Delimitation Item shall be included after the last
+ * Item in the sequence. Its Item Tag shall be (FFFE,E0DD) with a Value (Item) Length Field of 00000000H. No Value shall be present.
  * A Sequence containing zero Items is encoded by a Sequence Delimitation Item only.
- * 
+ *
  * https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_7.5.2.html
  * NOTES!
  *	> no nested sequences (may need to replace bool wih a stack to make it work)
- *	> only explicit length sequences are supported 
+ *	> only explicit length sequences are supported
  *	> multiple items should be supported, but not tested
  */
 
@@ -84,7 +84,7 @@ std::vector<Tuple> CustomFileReaderWriter::getAll()
 			else {
 				itemLength -= (objLength + METADATA_SIZE);
 				data.push_back(Tuple(
-					{ obj->getTag(), depthLevel},
+					{ obj->getTag(), depthLevel },
 					DcmVR(obj->getVR()).getVRName(),
 					obj->getVM(),
 					objLength,
@@ -114,44 +114,45 @@ std::vector<Tuple> CustomFileReaderWriter::getAll()
 	}
 	std::cout << "[STATUS] FETCHING DATA ENDED!\n";
 	return data;
-}	
+}
 
 void CustomFileReaderWriter::writeValueAtTag(DcmTag tag, OFString newValue)
 {
 	DcmElement* element = nullptr;
-	if (dataSet->findAndGetElement(tag, element).good() && element != nullptr) {
-		if (putValueTemplateF(element, newValue) < 0)
-			std::cerr << "[WR] value did not change!\n";
-		else
-			std::cout << "[STATUS] VALUE AT TAG " << tag << " HAS BEEN UPDATED!\n";
-	}
-	else
+	if (dataSet->findAndGetElement(tag, element).bad() || element == nullptr) {
 		std::cerr << "[WR] something went wrong!\n";
+		return;
+	}
+	if (putValueTemplateF(element, newValue) < 0)
+		std::cerr << "[WR] value did not change!\n";
+	else
+		std::cout << "[STATUS] VALUE AT TAG " << tag << " HAS BEEN UPDATED!\n";
 }
 
-void CustomFileReaderWriter::writeValueAtTag(DcmTag sequenceTag, DcmTag targetTag, OFString newValue) 
+void CustomFileReaderWriter::writeValueAtTag(DcmTag sequenceTag, DcmTag targetTag, OFString newValue)
 {
 	DcmSequenceOfItems* sequence = nullptr;
-	if (dataSet->findAndGetSequence(sequenceTag, sequence).good() && sequence != nullptr) {
-		for (unsigned long i = 0; i < sequence->card(); ++i) {
-			DcmItem* item = sequence->getItem(i);
-			if (item != nullptr) {
-				DcmElement* element = nullptr;
-				if (item->findAndGetElement(targetTag, element).good() && element != nullptr) {
-					if (putValueTemplateF(element, newValue) < 0)
-						std::cerr << "changed nothing: " << newValue << "\n";
-					else
-						std::cout << "[STATUS] VALUE AT TAG " << targetTag << " HAS BEEN UPDATED!\n";
-				}
-				else
-					std::cerr << "[SQ/WR] no element!\n";
-			}
-			else
-				std::cerr << "[SQ/WR] no item!\n";
-		}
-	}
-	else
+
+	if (dataSet->findAndGetSequence(sequenceTag, sequence).bad() || sequence == nullptr) {
 		std::cerr << "[SQ/WR] not even trying!\n";
+		return;
+	}
+	for (unsigned long i = 0; i < sequence->card(); ++i) {
+		DcmItem* item = sequence->getItem(i);
+		if (item == nullptr) {
+			std::cerr << "[SQ/WR] no item!\n";
+			return;
+		}
+		DcmElement* element = nullptr;
+		if (item->findAndGetElement(targetTag, element).bad() || element == nullptr) {
+			std::cerr << "[SQ/WR] no element!\n";
+			return;
+		}
+		if (putValueTemplateF(element, newValue) < 0)
+			std::cerr << "changed nothing: " << newValue << "\n";
+		else
+			std::cout << "[STATUS] VALUE AT TAG " << targetTag << " HAS BEEN UPDATED!\n";
+	}
 }
 
 void CustomFileReaderWriter::saveOnDisk(std::string path)
@@ -170,7 +171,7 @@ OFString CustomFileReaderWriter::retrieveValue(DcmTag tag)
 {
 	if (!strcmp(tag.getVR().getVRName(), "SQ") || !strcmp(tag.getVR().getVRName(), "na"))
 		return "";
-	
+
 	/**
 	 * to do list.
 	 * fetch the pixel data
@@ -216,24 +217,56 @@ OFString CustomFileReaderWriter::retrieveValue(DcmTag tag)
 
 OFString CustomFileReaderWriter::retrieveValue(DcmTag sequenceTag, const int itemIndex, DcmTag targetTag)
 {
-	OFString value(VALUE_BUFFER_SIZE, '\0');
 	DcmSequenceOfItems* sequence = nullptr;
 	OFCondition cond = dataSet->findAndGetSequence(sequenceTag, sequence);
-	if (cond.good() && sequence != nullptr) {
-		DcmItem* item = sequence->getItem(itemIndex);
-		if (item != nullptr)
-		{
-			DcmElement* element = nullptr;
-			if (item->findAndGetElement(targetTag, element).good() && element != nullptr)
-				element->getOFString(value, 0);
-			else
-				std::cerr << "[SQ] failed to fetch value for " << targetTag.getTagName() << '\n';
-		}
-		else
-			std::cerr << "[SQ] no item\n";
+	if (cond.bad() || sequence == nullptr) {
+		std::cerr << "[SQ] broke its legs! " << targetTag << ' ' << targetTag.getTagName() << "\n";
+		return "err";
 	}
-	else
-		std::cerr << "[SQ] broke its legs!\n";
+	DcmItem* item = sequence->getItem(itemIndex);
+	if (item == nullptr) {
+		std::cerr << "[SQ] no item " << targetTag << ' ' << targetTag.getTagName() << "\n";
+		return "err";
+	}
+	DcmElement* element = nullptr;
+	if (item->findAndGetElement(targetTag, element).bad() || element == nullptr) {
+		std::cerr << "[SQ] failed to fetch value for " << targetTag.getTagName() << '\n';
+		return "err";
+	}
+	OFString value(VALUE_BUFFER_SIZE, '\0');
+	element->getOFString(value, 0);
+	return value;
+}
+
+OFString CustomFileReaderWriter::retrieveValue(const std::vector<DcmTag> sequenceTags, const std::vector<int> itemIndices, DcmTag targetTag)
+{
+	if (sequenceTags.size() != itemIndices.size()) {
+		std::cerr << "[FW] vector size mismatch!\n";
+		return "err";
+	}
+	size_t n = sequenceTags.size() - 1;
+	DcmSequenceOfItems* sequence = nullptr;
+	DcmItem* item = nullptr;
+	DcmElement* element = nullptr;
+	OFCondition cond = dataSet->findAndGetSequence(sequenceTags.at(n), sequence);
+	for (int i = n; i >= 0; --i, cond = item->findAndGetSequence(sequenceTags.at(i), sequence)) {
+		if (cond.bad() || sequence == nullptr) {
+			std::cerr << "[FW] failed at fetching sequence!\n";
+			return "err";
+		}
+		item = sequence->getItem(itemIndices.at(i));
+		if (item == nullptr) {
+			std::cerr << "[FW] failed at fetching item in sequence!\n";
+			return "err";
+		}
+	}
+	element = nullptr;
+	if (item->findAndGetElement(targetTag, element).bad() || item == nullptr) {
+		std::cerr << "[FW] failed at fetching the element from item in sequence!\n";
+		return "err";
+	}
+	OFString value(VALUE_BUFFER_SIZE, '\0');
+	element->getOFString(value, 0);
 	return value;
 }
 

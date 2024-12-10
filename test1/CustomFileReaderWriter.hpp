@@ -7,6 +7,7 @@
 #include "Tuple.hpp"
 #include <string>
 #include <vector>
+#include <deque>
 #include <iostream>
 #include <utility>
 
@@ -23,6 +24,7 @@ private:
 	OFString retrieveDescription(DcmTag tag);
 	OFString retrieveValue(DcmTag tag);
 	OFString retrieveValue(DcmTag sequenceTag, const int itemIndex, DcmTag targetTag);
+	OFString retrieveValue(const std::vector<DcmTag> sequenceTags, const std::vector<int> itemIndices, DcmTag targetTag);
 	int putValueTemplateF(DcmElement* element, OFString newValue);
 
 	DcmFileFormat fileFormat;

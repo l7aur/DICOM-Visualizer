@@ -2,13 +2,14 @@
 
 namespace {
     std::vector<const char*> NON_EDITABLE_VR{"na", "SQ"};
+    const char DEPTH_MARKER = '\t';
+
     bool isThisRowEditable(QString s) {
         for (auto& i : NON_EDITABLE_VR)
             if (s == i)
                 return false;
         return true;
-    }    
-    const char DEPTH_MARKER = '\t';
+    }
 }
 
 CustomTable::CustomTable(unsigned int r, unsigned int c, const QStringList labels)

@@ -6,18 +6,22 @@ namespace {
     const QStringList COLUMN_HEADER_NAMES{ "TAG NAME", "VR", "VM", "LENGTH", "DESCRIPTION", "VALUE" };
     const unsigned int NUMBER_OF_ROWS = 0;
     const unsigned int NUMBER_OF_COLUMNS = COLUMN_HEADER_NAMES.size();
-    const std::string PATH_TO_FILE_TO_BE_OPEN_AT_STARTUP{ "C:\\PXD\\Studii\\zzTest1^zzTest2 2024-12-02.12_47_55\\ST0\\SE6\\1.3.12.2.1107.5.1.4.65117.30000020080307014720000003195.dcm" };
+    const std::string PATH_TO_FILE_TO_BE_OPEN_AT_STARTUP{ "C:\\PXD\\Studii\\zzTest1^zzTest2 2024-12-02.12_47_55\\ST0\\SE8\\1.3.12.2.1107.5.1.4.65117.30000020080305334601100000872.dcm" };
     const std::string PATH_TO_STUDIES_ROOT_FOLDER{ "C:\\PXD\\Studii\\zzTest1^zzTest2 2024-12-02.12_47_55\\ST0" };
     const std::string EDIT_ENABLE_MSG{ "EDITING HAS BEEN ENABLED" };
     const std::string EDIT_DISABLE_MSG{ "EDITING IS DISABLED" };
     const char DEPTH_MARKER = '\t';
 }
 
-Application::Application(QWidget* parent) 
+Application::Application(QWidget* parent)
     : QMainWindow(parent)
 {
     setWindowDimensions(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    // memory leak
     table = new CustomTable(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS, COLUMN_HEADER_NAMES);
+
+    //memory leak
     fr = new CustomFileReaderWriter();
     setCentralWidget(table);
     open();
@@ -25,12 +29,17 @@ Application::Application(QWidget* parent)
     addStateDisplay();
 }
 
-Application::~Application() 
+Application::~Application()
 {
+    // for now
+    delete table;
+    delete fr;
+    delete editLabel;
 }
 
 void Application::addStateDisplay()
 {
+    // memory leak
     editLabel = new QLabel(EDIT_DISABLE_MSG.c_str());
     statBar = statusBar();
     statBar->addPermanentWidget(editLabel, 1);
@@ -51,7 +60,7 @@ void Application::addMenu()
     createAction("Save As...", "C:\\Users\\user\\source\\repos\\test1\\test1\\save_icon.svg", &Application::saveAs);
 }
 
-void Application::createAction(std::string name, std::string iconPath, void (Application::*method)())
+void Application::createAction(std::string name, std::string iconPath, void (Application::* method)())
 {
     QAction* newAct = new QAction(QIcon(iconPath.c_str()), name.c_str(), this);
     fileMenu->addAction(newAct);
@@ -95,26 +104,28 @@ void Application::saveAs()
 void Application::saveTemplateF(QString path)
 {
     std::vector<std::pair<QString, QString>> tableData = table->getContentOfEditableCells();
-    std::stack<DcmTag> sequenceTag;
+    std::stack<std::pair<DcmTag, int>> sequenceTag;
+    int currentIndentation = 0;
     for (int index = 0; index < data.size(); ++index)
     {
-        if (!strcmp(data[index].getVr().getVRName(), "SQ")) {
-            sequenceTag.push(data[index].getTag().first);
+        if (!sequenceTag.empty() && sequenceTag.top().second != currentIndentation)
+            sequenceTag.pop();
+        currentIndentation = data.at(index).getTag().second;
+        if (!strcmp(data.at(index).getVr().getVRName(), "SQ")) {
+            sequenceTag.push({ data.at(index).getTag().first, currentIndentation});
             continue;
         }
-        if (!strcmp(data[index].getVr().getVRName(), "na"))
+        if (!strcmp(data.at(index).getVr().getVRName(), "na"))
             continue;
-        if (tableData[index].first.at(0) != '\t' && !sequenceTag.empty())
-            sequenceTag.pop();
-        OFString tableValueOfString = tableData[index].second.toStdString().c_str();
-        if (!(data[index].value == tableValueOfString)) {
+        OFString tableValueOfString = tableData.at(index).second.toStdString().c_str();
+        if (!(data.at(index).value == tableValueOfString)) {
             if (sequenceTag.empty())
-                fr->writeValueAtTag(data[index].getTag().first, tableValueOfString);
+                fr->writeValueAtTag(data.at(index).getTag().first, tableValueOfString);
             else
-                fr->writeValueAtTag(sequenceTag.top(), data[index].getTag().first, tableValueOfString); /*test*/
+                fr->writeValueAtTag(sequenceTag.top().first, data.at(index).getTag().first, tableValueOfString);
         }
     }
-    if(toggleEdit)
+    if (toggleEdit)
         edit();
     fr->saveOnDisk(path.toStdString());
 }
@@ -126,7 +137,6 @@ void Application::fetchData()
         COUT << "File was not opened!\n";
         return;
     }
-    // fr->printFile(); /*debug*/
     QStringList rowToBeInserted{};
 
     data = fr->getAll();
@@ -154,7 +164,7 @@ OFString Application::computeTagString(Tuple& rowData)
 
 QString Application::getNewFilePath()
 {
-    QString newPath = QFileDialog::getOpenFileName(this, tr("Open File"), PATH_TO_STUDIES_ROOT_FOLDER.c_str(), tr("*dcm"));
+    QString newPath = QFileDialog::getOpenFileName(this, tr("Open File"), PATH_TO_STUDIES_ROOT_FOLDER.c_str(), "*dcm");
     return (newPath.isEmpty()) ? currentFilePath : newPath;
 }
 
