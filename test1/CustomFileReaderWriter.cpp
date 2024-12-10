@@ -155,6 +155,11 @@ void CustomFileReaderWriter::writeValueAtTag(DcmTag sequenceTag, DcmTag targetTa
 	}
 }
 
+void CustomFileReaderWriter::writeValueAtTag(const std::vector<DcmTag> sequenceTags, const std::vector<int> itemIndices, DcmTag targetTag)
+{
+	return;
+}
+
 void CustomFileReaderWriter::saveOnDisk(std::string path)
 {
 	dataSet->saveFile(path.c_str());

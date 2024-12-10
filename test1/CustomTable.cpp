@@ -12,8 +12,8 @@ namespace {
     }
 }
 
-CustomTable::CustomTable(unsigned int r, unsigned int c, const QStringList labels)
-    : QTableWidget(r, c)
+CustomTable::CustomTable(unsigned int r, unsigned int c, const QStringList labels, QWidget* parent)
+    : QTableWidget(r, c, parent)
 {
     this->setColumnCount(c);
     this->setRowCount(r);

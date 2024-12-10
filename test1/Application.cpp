@@ -18,10 +18,8 @@ Application::Application(QWidget* parent)
 {
     setWindowDimensions(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    // memory leak
-    table = new CustomTable(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS, COLUMN_HEADER_NAMES);
+    table = new CustomTable(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS, COLUMN_HEADER_NAMES, this);
 
-    //memory leak
     fr = new CustomFileReaderWriter();
     setCentralWidget(table);
     open();
@@ -31,16 +29,12 @@ Application::Application(QWidget* parent)
 
 Application::~Application()
 {
-    // for now
-    delete table;
     delete fr;
-    delete editLabel;
 }
 
 void Application::addStateDisplay()
 {
-    // memory leak
-    editLabel = new QLabel(EDIT_DISABLE_MSG.c_str());
+    editLabel = new QLabel(EDIT_DISABLE_MSG.c_str(), this);
     statBar = statusBar();
     statBar->addPermanentWidget(editLabel, 1);
 }
@@ -104,15 +98,17 @@ void Application::saveAs()
 void Application::saveTemplateF(QString path)
 {
     std::vector<std::pair<QString, QString>> tableData = table->getContentOfEditableCells();
-    std::stack<std::pair<DcmTag, int>> sequenceTag;
+    std::vector<DcmTag> sequenceTag;
+    std::vector<int> indentations;
     int currentIndentation = 0;
     for (int index = 0; index < data.size(); ++index)
     {
-        if (!sequenceTag.empty() && sequenceTag.top().second != currentIndentation)
-            sequenceTag.pop();
+        if (!sequenceTag.empty() && indentations.back() != currentIndentation)
+            sequenceTag.pop_back();
         currentIndentation = data.at(index).getTag().second;
         if (!strcmp(data.at(index).getVr().getVRName(), "SQ")) {
-            sequenceTag.push({ data.at(index).getTag().first, currentIndentation});
+            sequenceTag.push_back(data.at(index).getTag().first);
+            indentations.push_back(currentIndentation);
             continue;
         }
         if (!strcmp(data.at(index).getVr().getVRName(), "na"))
@@ -122,7 +118,7 @@ void Application::saveTemplateF(QString path)
             if (sequenceTag.empty())
                 fr->writeValueAtTag(data.at(index).getTag().first, tableValueOfString);
             else
-                fr->writeValueAtTag(sequenceTag.top().first, data.at(index).getTag().first, tableValueOfString);
+                fr->writeValueAtTag(sequenceTag.back(), data.at(index).getTag().first, tableValueOfString);
         }
     }
     if (toggleEdit)

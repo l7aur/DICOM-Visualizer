@@ -10,7 +10,7 @@
 class CustomTable : public QTableWidget
 {
 public:
-	CustomTable(unsigned int, unsigned int, const QStringList);
+	CustomTable(unsigned int, unsigned int, const QStringList, QWidget* parent);
 	~CustomTable();
 	void insertRow(QStringList strings);
 	void setEditabilityOfAllCells(bool isEditable);

@@ -19,6 +19,7 @@ public:
 	std::vector<Tuple> getAll();
 	void writeValueAtTag(DcmTag tag, OFString newValue);
 	void writeValueAtTag(DcmTag sequenceTag, DcmTag targetTag, OFString newValue);
+	void writeValueAtTag(const std::vector<DcmTag> sequenceTags, const std::vector<int> itemIndices, DcmTag targetTag);
 	void saveOnDisk(std::string path);
 private:
 	OFString retrieveDescription(DcmTag tag);
