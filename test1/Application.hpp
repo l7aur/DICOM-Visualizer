@@ -32,9 +32,10 @@ private:
     void open();
     void edit();
     void save();
+    void saveAs();
+    void saveTemplateF(QString path);
     void fetchData();
     OFString computeTagString(Tuple& rowData);
-    const OFString removeMarkers(std::string s);
     QString getNewFilePath();
     void deleteTableContents();
     void resizeTableCells();

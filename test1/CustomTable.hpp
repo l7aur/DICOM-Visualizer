@@ -18,4 +18,5 @@ public:
 private:
 	void makeEditable(QTableWidgetItem* i);
 	void makeReadOnly(QTableWidgetItem* i);
+	QString removeDepthMarkers(const QString str) const;
 };
